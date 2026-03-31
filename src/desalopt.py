@@ -19,9 +19,9 @@ eng = future_eng.result()
 
 # While loading the MATLAB engine, run the hydrodynamics once since this was already optimized
 HYDRO_RESULTS = {
-    "width": 10.0,
-    "thickness": 4.325490196078432,
-    "wec_mass": 110000.0,
+    "width": 4.0,
+    "thickness": 2.508235294117647,
+    "wec_mass": 71176.4705882353,
 }
 
 hydro_prob = om.Problem(reports=None)
@@ -71,6 +71,13 @@ PTO_RESULTS = {
     "accum_P0": 3.00,
 }
 
+#PTO_RESULTS = {
+#    "hinge2joint": 1.3847058823529412,
+#    "piston_area": 0.8552941176470588,
+#    "accum_volume": 0.2918823529411765,
+#    "accum_P0": 5.91764705882353
+#}
+
 SAVED_RESULTS = {**HYDRO_RESULTS, **PTO_RESULTS}
 
 initialization_script_path = parent_folder + '/src'
@@ -96,8 +103,9 @@ DESAL_BITS = {var: BITS[var] for var in DESAL_VARS}
 print("Starting optimization...")
 desal_ga = GA(safe_desalandpto_objective, DESAL_BOUNDS, DESAL_BITS,
                     NGEN=300, NPOP=32, NWORKERS=PARAMS["nworkers"],
-                    CXPB=0.8, MUTPB=0.03, ELITES_SIZE=1, TOURNAMENT_SIZE=2,
-                    PATIENCE=100, TOL=1e-3, csv_path="data/newresults_desal.csv")
+                    CXPB=0.8, MUTPB=0.2, ELITES_SIZE=1, TOURNAMENT_SIZE=2,
+                    NIMMIGRANTS=24, IMMIGRATION_INTERVAL=10,
+                    PATIENCE=50, TOL=1e-3, csv_path="data/sdo_desal2.csv")
 
 results = desal_ga.run()
 print("Optimization completed.")

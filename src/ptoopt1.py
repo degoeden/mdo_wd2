@@ -8,6 +8,7 @@ from src.runner import RunWDDS
 from src.DEAPSEA.src.ga import DeapSeaGa as GA
 from src.params import PARAMS, BOUNDS, BITS
 import src.geometry.geometry as geom
+from src.cleaning import start_cleanup_thread
 import src.hydro.hydro as hydro
 import src.econ.econ as econ
 import src.econ.PTOecon as PTOecon
@@ -16,14 +17,20 @@ import openmdao.api as om
 threadpool_limits(limits=1, user_api='blas')
 threadpool_limits(limits=1, user_api='openmp')
 
+tmpfolder = "/scratch/mhaji_root/mhaji98/degoeden/matlab_tmp_pto1"
+os.environ["TMPDIR"] = tmpfolder
+os.makedirs(tmpfolder, exist_ok=True)
+
+start_cleanup_thread(folder = tmpfolder)
+
 future_eng = matlab.engine.start_matlab(background=True)
 eng = future_eng.result()
 
 # While loading the MATLAB engine, run the hydrodynamics once since this was already optimized
 HYDRO_RESULTS = {
-    "width": 10.0,
-    "thickness": 4.325490196078432,
-    "wec_mass": 110000.0,
+    "width": 4.0,
+    "thickness": 2.508235294117647,
+    "wec_mass": 71176.4705882353,
 }
 
 hydro_prob = om.Problem(reports=None)
@@ -108,8 +115,9 @@ PTO_BITS = {var: BITS[var] for var in PTO_VARS}
 print("Starting optimization...")
 pto_ga = GA(safe_pto_objective, PTO_BOUNDS, PTO_BITS,
             NGEN=400, NPOP=128, NWORKERS=PARAMS["nworkers"],
-            CXPB=0.8, MUTPB=0.02, ELITES_SIZE=2, TOURNAMENT_SIZE=3,
-            PATIENCE=100, TOL=1e-3, csv_path="data/newresults_pto1.csv")
+            CXPB=0.8, MUTPB=0.2, ELITES_SIZE=1, TOURNAMENT_SIZE=2,
+            NIMMIGRANTS=96, IMMIGRATION_INTERVAL=25,
+            PATIENCE=100, TOL=1e-3, csv_path="data/sdo_pto1.csv")
 
 results = pto_ga.run()
 print("Optimization completed.")

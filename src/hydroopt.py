@@ -57,8 +57,9 @@ HYDRO_BITS = {var: BITS[var] for var in HYDRO_VARS}
 
 hydro_ga = GA(safe_hydro_objective, HYDRO_BOUNDS, HYDRO_BITS,
         NGEN=500, NPOP=96, NWORKERS=PARAMS["nworkers"],
-        CXPB=0.8, MUTPB=0.03, ELITES_SIZE=2, TOURNAMENT_SIZE=3,
-        PATIENCE=100, TOL=1e-3, csv_path="data/newresults_hydro.csv")
+        CXPB=0.8, MUTPB=0.2, ELITES_SIZE=1, TOURNAMENT_SIZE=2,
+        NIMMIGRANTS=72, IMMIGRATION_INTERVAL=25,
+        PATIENCE=100, TOL=1e-3, csv_path="data/sdo_hydro.csv")
 results = hydro_ga.run()
 HYDRO_OPT = results[0]
 print("Hydro optimization complete.")
